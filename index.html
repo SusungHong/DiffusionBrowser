@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Interactive Diffusion Previews via Multi-Branch Decoders">
+  <meta name="keywords" content="DiffusionBrowser, Video Diffusion, Interactive Generation, Multi-Branch Decoders">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DiffusionBrowser</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/colorful_planet.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+  
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">DiffusionBrowser: Interactive Diffusion Previews via Multi-Branch Decoders</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://susunghong.github.io/">Susung Hong</a><sup>1,*</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://chongjiange.github.io/">Chongjian Ge</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://zzutk.github.io/">Zhifei Zhang</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://juiwang.com/">Jui-Hsien Wang</a><sup>2</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Washington</span>
+            <span class="author-block"><sup>2</sup>Adobe Research</span><br>
+            <span class="author-block"><sup>*</sup>Work done during an internship at Adobe</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2412.19761"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Diffusion Sampling vs. Browsing<br>(Hover to See Multi-Modal Previews)</h2>
+      <div class="columns">
+        <!-- Left: Original Random Sampling -->
+        <div class="column">
+          <h3 class="title is-5 has-text-centered">Original Diffusion Sampling</h3>
+          <div id="original-sampling" class="sampling-container">
+            <div id="loading-spinner" class="loading-container">
+              <p class="prompt-text">"Wide shot of an astronaut pushing through colorful jungle vines on an alien planet"</p>
+              <div class="spinner"></div>
+              <p class="loading-text">Full-step diffusion sampling...</p>
+            </div>
+            <video id="original-final" class="result-video" style="display: none;" autoplay muted loop playsinline>
+              <source src="./media/0_final.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        
+        <!-- Right: Proposed Browsing -->
+        <div class="column">
+          <h3 class="title is-5 has-text-centered">Proposed Diffusion Browsing</h3>
+          <div id="proposed-browsing" class="browsing-container">
+            <!-- Tree Layer 1 -->
+            <div id="tree-layer-1" class="tree-layer" style="display: none;">
+              <div class="tree-items" id="layer1-items"></div>
+            </div>
+            <!-- Browsing loading (sits below first layer) -->
+            <div id="browsing-loading" class="loading-container">
+              <p class="prompt-text">"Wide shot of an astronaut pushing through colorful jungle vines on an alien planet"</p>
+              <div class="spinner"></div>
+              <p class="loading-text">Previewing branches...</p>
+            </div>
+            
+            <!-- Connection Line -->
+            <div id="connection-line" class="connection-line" style="display: none;"></div>
+            
+            <!-- Tree Layer 2 Row: Variations + Steered -->
+            <div id="tree-layer-2-row" class="tree-layer tree-layer-row" style="display: none;">
+              <div id="tree-layer-2-variations" class="tree-layer-block" style="display: none;">
+                <div class="tree-label">Variations</div>
+                <div class="tree-items" id="layer2-variations-items"></div>
+              </div>
+              <div id="tree-layer-2-steered" class="tree-layer-block" style="display: none;">
+                <div class="tree-label">Steered</div>
+                <div class="tree-items" id="layer2-steered-items"></div>
+              </div>
+            </div>
+            <!-- Arrow toward final -->
+            <div id="connection-line-2" class="connection-line" style="display: none;"></div>
+            
+            <!-- Final Result -->
+            <div id="final-result" class="final-result" style="display: none;">
+              <video id="final-video" class="result-video" autoplay muted loop playsinline>
+                <source src="./media/4_3_final.mp4" type="video/mp4">
+              </video>
+            </div>
+            <div id="final-loading" class="loading-container" style="display: none;">
+              <div class="spinner"></div>
+              <p class="loading-text">Rendering final...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="abstract">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Video diffusion models have revolutionized generative video synthesis, but they are imprecise, slow, and can be opaque during generation—keeping users in the dark for a prolonged period. In this work, we propose DiffusionBrowser, a model-agnostic, lightweight decoder framework that allows users to interactively generate previews at any point (timestep or transformer block) during the denoising process. Our model can generate multi-modal preview representations that include RGB and scene intrinsics at more than 4× real-time speed (less than 1 second for a 4-second video) that convey consistent appearance and motion to the final video. With the trained decoder, we show that it is possible to interactively guide the generation at intermediate noise steps via stochasticity reinjection and modal steering, unlocking a new control capability. Moreover, we systematically probe the model using the learned decoders, revealing how scene, object, and other details are composed and assembled during the otherwise black-box denoising process.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Timestep-Wise Evolution of Scene Intrinsics</h2>
+      <h3 class="subtitle has-text-centered">
+        The grid shows material properties (rubber, RGB, base color, depth, normal, metallic, roughness) in columns, with rows for GT and previews at denoising timesteps (2%, 4%, 10%, 20%, 40%, 100%). Basic scene structure and intrinsics emerge early and stabilize quickly.
+      </h3>
+      <div id="evolution-grid-carousel" class="carousel results-carousel">
+        <div class="item item-evolution-0">
+          <video id="evolution-grid-0" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_0.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-1">
+          <video id="evolution-grid-1" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_1.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-2">
+          <video id="evolution-grid-2" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_2.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-3">
+          <video id="evolution-grid-3" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_3.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-4">
+          <video id="evolution-grid-4" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_4.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-5">
+          <video id="evolution-grid-5" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_5.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-6">
+          <video id="evolution-grid-6" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_6.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-7">
+          <video id="evolution-grid-7" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_7.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-8">
+          <video id="evolution-grid-8" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_8.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-9">
+          <video id="evolution-grid-9" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_9.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-evolution-10">
+          <video id="evolution-grid-10" controls muted loop playsinline height="100%">
+            <source src="./media/evolution_grid_10.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-small rubber-previews">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Rubber-Like Previews</h2>
+      <h3 class="subtitle has-text-centered">Each column shows a different sample, and each row shows 4%, 10%, and 20% of the denoising steps.</h3>
+      <div class="columns is-multiline">
+        <div class="column is-one-third">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./media/rubber_4p_0.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./media/rubber_4p_1.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./media/rubber_4p_2.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./media/rubber_10p_0.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./media/rubber_10p_1.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./media/rubber_10p_2.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./media/rubber_20p_0.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./media/rubber_20p_1.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./media/rubber_20p_2.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pipeline">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Analysis</h2>
+    <h3 class="subtitle has-text-centered">Linear probing and our multi-branch decoder</h3>
+    <div class="content has-text-centered" style="margin-bottom: 24px;">
+      <img src="./media/linear_probing.png" alt="Linear probing results" style="max-width: 100%; height: auto;">
+    </div>
+    <div class="columns is-vcentered">
+      <div class="column is-half">
+        <div class="content">
+          <p>
+            Linear probing shows intrinsic channels (base color, depth, normals) become predictable very early across both timesteps and blocks, while RGB sharpens gradually. Guided by this, we attach lightweight decoders at intermediate features and train multiple branches jointly with branch-wise losses plus an ensemble loss. This multi-branch design reduces the superposition problem that appears at noisy timesteps and yields sharp and consistent previews that match the final video.
+          </p>
+        </div>
+      </div>
+      <div class="column is-half has-text-centered">
+        <img src="./media/pipeline.png" alt="Pipeline diagram" style="max-width: 100%; height: auto;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is based on <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a> and <a href="https://genprop.github.io/">GenProp</a>, licensed under a 
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

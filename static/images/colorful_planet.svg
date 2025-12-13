@@ -1,0 +1,40 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="planetGradient" cx="40%" cy="40%">
+      <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#c44569;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#5f27cd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#341f97;stop-opacity:1" />
+    </radialGradient>
+    
+    <radialGradient id="highlight" cx="35%" cy="35%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.6" />
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </radialGradient>
+    
+    <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#feca57;stop-opacity:0.9" />
+      <stop offset="50%" style="stop-color:#ff9ff3;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#54a0ff;stop-opacity:0.9" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Ring behind planet -->
+  <ellipse cx="100" cy="100" rx="120" ry="25" fill="url(#ringGradient)" opacity="0.6" transform="rotate(-20 100 100)"/>
+  
+  <!-- Planet body -->
+  <circle cx="100" cy="100" r="60" fill="url(#planetGradient)"/>
+  
+  <!-- Surface patterns -->
+  <ellipse cx="85" cy="90" rx="25" ry="15" fill="#ff7979" opacity="0.4"/>
+  <ellipse cx="115" cy="105" rx="20" ry="12" fill="#74b9ff" opacity="0.4"/>
+  <ellipse cx="95" cy="115" rx="15" ry="10" fill="#a29bfe" opacity="0.5"/>
+  
+  <!-- Highlight -->
+  <circle cx="100" cy="100" r="60" fill="url(#highlight)"/>
+  
+  <!-- Ring in front of planet -->
+  <ellipse cx="100" cy="100" rx="120" ry="25" fill="none" stroke="url(#ringGradient)" stroke-width="4" opacity="0.8" transform="rotate(-20 100 100)"/>
+  <path d="M 30 85 Q 100 80 170 85" fill="none" stroke="url(#ringGradient)" stroke-width="3" opacity="0.9"/>
+</svg>
